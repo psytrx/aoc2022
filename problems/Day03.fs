@@ -10,21 +10,36 @@ let GetPriority (c: char) =
     else
         failwith "invalid character"
 
+let GroupByThree (xs: 'a []) =
+    let rec aux i acc =
+        if i >= xs.Length then
+            acc
+        else
+            aux (i + 3) (acc @ [ xs.[i .. i + 2] ])
+
+    aux 0 []
+
 let Solve1 filename =
     System.IO.File.ReadAllLines(filename)
     |> Array.map (fun line ->
-        let mid = line.Length / 2
-        let l, r = line[.. mid - 1], line[mid..]
+        let m = line.Length / 2
+        let l, r = line[.. m - 1], line[m..]
         let isect = Set.intersect (Set.ofSeq l) (Set.ofSeq r)
 
         if isect.Count <> 1 then
             failwith "invalid number of intersections"
 
-        let c = isect |> Set.toArray |> Array.head
-        let p = GetPriority c
-        p)
+        isect |> Set.toArray |> Array.head |> GetPriority)
     |> Array.sum
 
 let Solve2 filename =
     System.IO.File.ReadAllLines(filename)
-    |> Array.length
+    |> GroupByThree
+    |> List.map (fun bags ->
+        let isect = bags |> Array.map Set.ofSeq |> Set.intersectMany
+
+        if isect.Count <> 1 then
+            failwith "invalid number of intersections"
+
+        isect |> Set.toArray |> Array.head |> GetPriority)
+    |> List.sum
