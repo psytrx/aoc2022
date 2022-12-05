@@ -20,9 +20,9 @@ let LoadBags filename =
     |> ParseBags
     |> Seq.map List.sum
 
-let solve1 () = LoadBags "./input/day01.txt" |> Seq.max
+let Solve1 () = LoadBags "./input/day01.txt" |> Seq.max
 
-let solve2 () =
+let Solve2 () =
     LoadBags "./input/day01.txt"
     |> Seq.sortDescending
     |> Seq.take 3
