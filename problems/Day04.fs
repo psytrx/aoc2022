@@ -2,10 +2,7 @@ module Day04
 
 let ParseRange (s: string) =
     match s.Split("-") with
-    | [| l; u |] ->
-        let lower = System.Convert.ToInt32 l
-        let upper = System.Convert.ToInt32 u
-        (lower, upper)
+    | [| l; u |] -> (System.Convert.ToInt32 l, System.Convert.ToInt32 u)
     | _ -> failwith "invalid range format"
 
 let ParsePair (s: string) =
@@ -21,15 +18,11 @@ let Overlaps a b =
     match (a, b) with
     | (la, ua), (lb, ub) -> ua >= lb && ua < ub || la >= lb && la <= ub
 
-
-let Solve1 =
+let Solve predicate =
     System.IO.File.ReadAllLines
     >> Array.map ParsePair
-    >> Array.filter (fun (a, b) -> (Contains a b) || (Contains b a))
+    >> Array.filter (fun (a, b) -> (predicate a b) || (predicate b a))
     >> Array.length
 
-let Solve2 =
-    System.IO.File.ReadAllLines
-    >> Array.map ParsePair
-    >> Array.filter (fun (a, b) -> (Overlaps a b) || (Overlaps b a))
-    >> Array.length
+let Solve1 = Solve Contains
+let Solve2 = Solve Overlaps
