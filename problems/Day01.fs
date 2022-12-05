@@ -15,15 +15,15 @@ let ParseBags lines =
         yield bag
     }
 
-let LoadBags filename =
-    System.IO.File.ReadAllLines(filename)
-    |> ParseBags
-    |> Seq.map List.sum
+let LoadBags =
+    System.IO.File.ReadAllLines
+    >> ParseBags
+    >> (Seq.map List.sum)
 
-let Solve1 () = LoadBags "./input/day01.txt" |> Seq.max
+let Solve1 = LoadBags >> Seq.max
 
-let Solve2 () =
-    LoadBags "./input/day01.txt"
-    |> Seq.sortDescending
-    |> Seq.take 3
-    |> Seq.sum
+let Solve2 =
+    LoadBags
+    >> Seq.sortDescending
+    >> Seq.take 3
+    >> Seq.sum

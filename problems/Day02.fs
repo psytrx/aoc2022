@@ -73,22 +73,22 @@ let SumPointsForStrategy strategy (data: string []) =
         GetRoundPoints shapeMe result)
     |> Array.sum
 
-let Solve1 filename =
+let Solve1 =
     let strat opp me =
         let shapeOpp = ParseShape opp
         let shapeMe = ParseShape me
-        let result = GetRoundResult shapeMe shapeOpp
-        (shapeMe, result)
+        let roundRes = GetRoundResult shapeMe shapeOpp
+        (shapeMe, roundRes)
 
-    System.IO.File.ReadAllLines(filename)
-    |> SumPointsForStrategy strat
+    System.IO.File.ReadAllLines
+    >> SumPointsForStrategy strat
 
-let Solve2 filename =
+let Solve2 =
     let strat opp res =
         let shapeOpp = ParseShape opp
         let roundRes = ParseRoundResult res
         let shapeMe = GetShapeResponse shapeOpp roundRes
         (shapeMe, roundRes)
 
-    System.IO.File.ReadAllLines(filename)
-    |> SumPointsForStrategy strat
+    System.IO.File.ReadAllLines
+    >> SumPointsForStrategy strat
