@@ -17,6 +17,10 @@ let Contains inside outside =
     match (inside, outside) with
     | ((la, ua), (lb, ub)) -> la >= lb && la <= ub && ua >= lb && ua <= ub
 
+let Overlaps a b =
+    match (a, b) with
+    | (la, ua), (lb, ub) -> ua >= lb && ua < ub || la >= lb && la <= ub
+
 
 let Solve1 =
     System.IO.File.ReadAllLines
@@ -24,4 +28,8 @@ let Solve1 =
     >> Array.filter (fun (a, b) -> (Contains a b) || (Contains b a))
     >> Array.length
 
-let Solve2 = System.IO.File.ReadAllLines >> Array.length
+let Solve2 =
+    System.IO.File.ReadAllLines
+    >> Array.map ParsePair
+    >> Array.filter (fun (a, b) -> (Overlaps a b) || (Overlaps b a))
+    >> Array.length
