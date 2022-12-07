@@ -14,6 +14,7 @@ let parseShape s =
     | "C"
     | "Z" -> Scissors
     | _ -> failwith "invalid shape"
+
 type RoundResult =
     | Win
     | Draw
@@ -21,7 +22,7 @@ type RoundResult =
 
 let roundResult me opp =
     match (me, opp) with
-    | (Rock, Scissors) ->  Win
+    | (Rock, Scissors) -> Win
     | (Scissors, Paper) -> Win
     | (Paper, Rock) -> Win
     | _ when me = opp -> Draw
@@ -50,9 +51,9 @@ let roundPoints shape result =
     | Draw -> 3
     | Loss -> 0
     + match shape with
-        | Rock -> 1
-        | Paper -> 2
-        | Scissors -> 3
+      | Rock -> 1
+      | Paper -> 2
+      | Scissors -> 3
 
 let sumPointsWithStrat strat (data: string []) =
     data
@@ -78,7 +79,7 @@ let solve1 =
 
 let solve2 =
     let strat opp res =
-        let shapeOpp =  parseShape opp
+        let shapeOpp = parseShape opp
         let roundRes = parseRoundResult res
         let shapeMe = shapeResponse shapeOpp roundRes
         (shapeMe, roundRes)

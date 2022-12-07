@@ -16,7 +16,7 @@ let contains inside outside =
 
 let overlaps a b =
     match (a, b) with
-    | (la, ua), (lb, ub) -> ua >= lb && ua < ub || la >= lb && la <= ub
+    | (la, ua), (lb, ub) -> ua >= lb && ua <= ub || la >= lb && la <= ub
 
 let solve predicate =
     System.IO.File.ReadAllLines

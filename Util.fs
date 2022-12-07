@@ -18,7 +18,7 @@ let blockWise sep list =
                 yield acc
                 acc <- []
             else
-                acc <- acc @ [item]
+                acc <- acc @ [ item ]
 
         yield acc
     }
