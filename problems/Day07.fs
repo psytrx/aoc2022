@@ -100,4 +100,31 @@ let solve1 filename =
     |> List.filter (fun dir -> dir.Size <= 100000)
     |> List.sumBy (fun entry -> entry.Size)
 
-let solve2 filename = -1
+let solve2 filename =
+    let tree =
+        System.IO.File.ReadAllLines filename
+        |> Array.toList
+        |> parseTree
+
+    let rec findDirectories acc entry =
+        if entry.IsDir then
+            let children =
+                entry.Children
+                |> List.collect (findDirectories acc)
+
+            entry :: acc @ children
+        else
+            acc
+
+    let fsSize = 70000000
+    let required = 30000000
+    let unused = fsSize - tree.Size
+    let remainingRequired = required - unused
+
+    let toDelete =
+        findDirectories [] tree
+        |> List.filter (fun dir -> dir.Size > remainingRequired)
+        |> List.sortBy (fun dir -> dir.Size)
+        |> Seq.head
+
+    toDelete.Size
