@@ -79,8 +79,7 @@ let parseTree lines =
 
     aux root lines
 
-
-let solve1 filename =
+let readDirList filename =
     let tree =
         System.IO.File.ReadAllLines filename
         |> Array.toList
@@ -97,34 +96,42 @@ let solve1 filename =
             acc
 
     findDirectories [] tree
-    |> List.filter (fun dir -> dir.Size <= 100000)
-    |> List.sumBy (fun entry -> entry.Size)
 
-let solve2 filename =
+let readTree =
+    System.IO.File.ReadAllLines
+    >> Array.toList
+    >> parseTree
+
+let rec flattenDirectories acc entry =
+    if entry.IsDir then
+        let children =
+            entry.Children
+            |> List.collect (flattenDirectories acc)
+
+        entry :: acc @ children
+    else
+        acc
+
+let solve1 filename =
     let tree =
         System.IO.File.ReadAllLines filename
         |> Array.toList
         |> parseTree
 
-    let rec findDirectories acc entry =
-        if entry.IsDir then
-            let children =
-                entry.Children
-                |> List.collect (findDirectories acc)
 
-            entry :: acc @ children
-        else
-            acc
+    flattenDirectories [] tree
+    |> List.filter (fun dir -> dir.Size <= 100000)
+    |> List.sumBy (fun entry -> entry.Size)
 
-    let fsSize = 70000000
-    let required = 30000000
-    let unused = fsSize - tree.Size
-    let remainingRequired = required - unused
+let solve2 filename =
+    let tree = readTree filename
+    let dirs = flattenDirectories [] tree
+    let required = 30000000 - (70000000 - tree.Size)
 
-    let toDelete =
-        findDirectories [] tree
-        |> List.filter (fun dir -> dir.Size > remainingRequired)
+    let dir =
+        dirs
+        |> List.filter (fun dir -> dir.Size > required)
         |> List.sortBy (fun dir -> dir.Size)
         |> Seq.head
 
-    toDelete.Size
+    dir.Size
