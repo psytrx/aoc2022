@@ -22,7 +22,9 @@ let parseInput lines =
 
     match blocks with
     | [ stackLines; moveLines ] ->
-        let stacks = parseStacks stackLines.[.. stackLines.Length - 2]
+        let stacks =
+            parseStacks stackLines.[.. stackLines.Length - 2]
+            |> List.toArray
 
         let moves =
             moveLines
@@ -31,17 +33,24 @@ let parseInput lines =
         (stacks, moves)
     | _ -> failwith "invalid input format"
 
+let applyMoves applyMove stacks moves =
+    let rec aux stacks moves =
+        match moves with
+        | [] -> stacks
+        | move :: rest -> aux (applyMove stacks move) rest
+
+    aux stacks moves
+
+
 let solve applyMove filename =
-    let (stacks, moves) =
+    let mutable (stacks, moves) =
         System.IO.File.ReadAllLines(filename)
         |> parseInput
 
-    let mutable stacks' = stacks |> List.toArray
-
     for move in moves do
-        stacks' <- applyMove stacks' move
+        stacks <- applyMove stacks move
 
-    stacks' |> Array.map List.head |> System.String
+    stacks |> Array.map List.head |> System.String
 
 let solve1 filename =
     let applyMove (stacks: list<char> array) move =
