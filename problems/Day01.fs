@@ -1,6 +1,6 @@
 module Day01
 
-let ParseBags lines =
+let parseInput lines =
     seq {
         let mutable bag = []
 
@@ -15,15 +15,15 @@ let ParseBags lines =
         yield bag
     }
 
-let LoadBags =
+let loadBags =
     System.IO.File.ReadAllLines
-    >> ParseBags
+    >> parseInput
     >> (Seq.map List.sum)
 
-let Solve1 = LoadBags >> Seq.max
+let solve1 = loadBags >> Seq.max
 
-let Solve2 =
-    LoadBags
+let solve2 =
+    loadBags
     >> Seq.sortDescending
     >> Seq.take 3
     >> Seq.sum

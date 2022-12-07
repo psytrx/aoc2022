@@ -1,7 +1,7 @@
 module Day05
 
-let Solve1 () = 
+let solve1 filename = 
     -1
 
-let Solve2 () =
+let solve2 filename =
     -1
