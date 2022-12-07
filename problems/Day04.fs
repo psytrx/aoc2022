@@ -1,14 +1,8 @@
 module Day04
 
-let parseRange (s: string) =
-    match s.Split("-") with
-    | [| l; u |] -> (System.Convert.ToInt32 l, System.Convert.ToInt32 u)
-    | _ -> failwith "invalid range format"
-
-let parsePair (s: string) =
-    match s.Split(",") with
-    | [| l; r |] -> (parseRange l, parseRange r)
-    | _ -> failwith "invalid pair format"
+let parseLine s =
+    let la, ua, lb, ub = Sscanf.sscanf "%i-%i,%i-%i" s
+    (la, ua), (lb, ub)
 
 let contains inside outside =
     match (inside, outside) with
@@ -20,7 +14,7 @@ let overlaps a b =
 
 let solve predicate =
     System.IO.File.ReadAllLines
-    >> Array.map parsePair
+    >> Array.map parseLine
     >> Array.filter (fun (a, b) -> (predicate a b) || (predicate b a))
     >> Array.length
 
