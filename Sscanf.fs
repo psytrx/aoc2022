@@ -1,9 +1,5 @@
 module Sscanf
 
-open System
-open System.Text.RegularExpressions
-open Microsoft.FSharp.Reflection
-
 // sscanf taken from http://www.fssnip.net/4I/title/sscanf-parsing-with-format-strings
 
 let private check f x =
@@ -13,21 +9,21 @@ let private check f x =
         failwithf "format failure \"%s\"" x
 
 let private parseDecimal (x: string) =
-    Decimal.Parse(x, System.Globalization.CultureInfo.InvariantCulture)
+    System.Decimal.Parse(x, System.Globalization.CultureInfo.InvariantCulture)
 
 let private parsers =
-    dict [ 'b', string >> Boolean.Parse >> box
+    dict [ 'b', string >> System.Boolean.Parse >> box
            'd', int >> box
            'i', int >> box
            's', box
            'u', uint32 >> int >> box
            'x',
-           check (String.forall Char.IsLower)
+           check (String.forall System.Char.IsLower)
            >> ((+) "0x")
            >> int
            >> box
            'X',
-           check (String.forall Char.IsUpper)
+           check (String.forall System.Char.IsUpper)
            >> ((+) "0x")
            >> int
            >> box
@@ -64,12 +60,16 @@ let rec private getFormatters xs =
 
 let sscanf (pf: PrintfFormat<_, _, _, _, 't>) s : 't =
     let formatStr = pf.Value.Replace("%%", "%")
-    let constants = formatStr.Split(separators, StringSplitOptions.None)
+    let constants = formatStr.Split(separators, System.StringSplitOptions.None)
 
     let regex =
-        Regex(
+        System.Text.RegularExpressions.Regex(
             "^"
-            + String.Join("(.*?)", constants |> Array.map Regex.Escape)
+            + System.String.Join(
+                "(.*?)",
+                constants
+                |> Array.map System.Text.RegularExpressions.Regex.Escape
+            )
             + "$"
         )
 
@@ -80,7 +80,7 @@ let sscanf (pf: PrintfFormat<_, _, _, _, 't>) s : 't =
 
     let groups =
         regex.Match(s).Groups
-        |> Seq.cast<Group>
+        |> Seq.cast<System.Text.RegularExpressions.Group>
         |> Seq.skip 1
 
     let matches =
@@ -91,10 +91,4 @@ let sscanf (pf: PrintfFormat<_, _, _, _, 't>) s : 't =
     if matches.Length = 1 then
         matches.[0] :?> 't
     else
-        FSharpValue.MakeTuple(matches, typeof<'t>) :?> 't
-
-// some basic testing
-// let (a,b) = sscanf "(%%%s,%M)" "(%hello, 4.53)"
-// let (x,y,z) = sscanf "%s-%s-%s" "test-this-string"
-// let (c,d,e,f,g,h,i) = sscanf "%b-%d-%i,%u,%x,%X,%o" "false-42--31,13,ff,FF,42"
-// let (j,k,l,private m,n,o,p) = sscanf "%f %F %g %G %e %E %c" "1 2.1 3.4 .3 43.2e32 0 f"
+        Reflection.FSharpValue.MakeTuple(matches, typeof<'t>) :?> 't
