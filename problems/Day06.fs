@@ -1,6 +1,6 @@
 module Day06
 
-let findStartOfPacketMarker signal =
+let findPacketMarker signal =
     let rec aux i len signal =
         let set = Set.ofList (List.take len signal)
 
@@ -14,7 +14,7 @@ let findStartOfPacketMarker signal =
 let solve n =
     System.IO.File.ReadAllText
     >> List.ofSeq
-    >> findStartOfPacketMarker n
+    >> findPacketMarker n
 
 let solve1 = solve 4
 let solve2 = solve 14

@@ -17,22 +17,18 @@ let parseStacks lines =
     |> List.transpose
     |> List.map (List.choose id)
 
-type Move = { N: int; From: int; To: int }
-
-let parseMoves lines =
-    lines
-    |> List.map (fun line ->
-        let (n', from', to') = line |> Sscanf.sscanf "move %d from %d to %d"
-        { From = from'; To = to'; N = n' })
-
 let parseInput lines =
     let blocks = lines |> Util.blockWise "" |> List.ofSeq
 
     match blocks with
-    | [ stackLines; moves ] ->
-        let stacks' = parseStacks stackLines.[.. stackLines.Length - 2]
-        let moves' = parseMoves moves
-        (stacks', moves')
+    | [ stackLines; moveLines ] ->
+        let stacks = parseStacks stackLines.[.. stackLines.Length - 2]
+
+        let moves =
+            moveLines
+            |> List.map (Sscanf.sscanf "move %i from %i to %i")
+
+        (stacks, moves)
     | _ -> failwith "invalid input format"
 
 let solve applyMove filename =
@@ -49,25 +45,23 @@ let solve applyMove filename =
 
 let solve1 filename =
     let applyMove (stacks: list<char> array) move =
-        for _ in [ 1 .. move.N ] do
-            stacks.[move.To - 1] <-
-                List.head (stacks.[move.From - 1])
-                :: stacks.[move.To - 1]
+        match move with
+        | (from, to', n) ->
+            for _ in [ 1..n ] do
+                stacks.[to' - 1] <- List.head (stacks.[from - 1]) :: stacks.[to' - 1]
+                stacks.[from - 1] <- List.tail stacks.[from - 1]
 
-            stacks.[move.From - 1] <- List.tail stacks.[move.From - 1]
-
-        stacks
+            stacks
 
     solve applyMove filename
 
 
 let solve2 filename =
     let applyMove (stacks: list<char> array) move =
-        stacks.[move.To - 1] <-
-            stacks.[move.From - 1][.. move.N - 1]
-            @ stacks.[move.To - 1]
-
-        stacks.[move.From - 1] <- stacks.[move.From - 1] |> List.skip move.N
+        match move with
+        | (from, to', n) ->
+            stacks.[to' - 1] <- stacks.[from - 1][.. n - 1] @ stacks.[to' - 1]
+            stacks.[from - 1] <- stacks.[from - 1] |> List.skip n
 
         stacks
 
