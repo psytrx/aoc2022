@@ -57,4 +57,23 @@ let solve1 filename =
 
     -1
 
-let solve2 filename = -1
+let solve2 filename =
+    let mutable (stacks, moves) =
+        System.IO.File.ReadAllLines(filename)
+        |> parseInput
+
+    let stacks' = stacks |> List.toArray
+
+    for move in moves do
+        stacks'.[move.To - 1] <-
+            stacks'.[move.From - 1][.. move.N - 1]
+            @ stacks'.[move.To - 1]
+
+        stacks'.[move.From - 1] <- stacks'.[move.From - 1] |> List.skip move.N
+
+    stacks'
+    |> Array.map List.head
+    |> System.String
+    |> printfn "%O"
+
+    -1
