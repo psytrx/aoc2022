@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="./Sscanf.fs" />
     <Compile Include="./Util.fs" />
     <Compile Include="./problems/Day01.fs" />
     <Compile Include="./problems/Day02.fs" />

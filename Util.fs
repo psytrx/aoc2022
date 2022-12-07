@@ -1,10 +1,24 @@
 module Util
 
-let bundleWise n (xs: 'a []) =
+let bundleWise size (list: 'a []) =
     let rec aux i acc =
-        if i >= xs.Length then
+        if i >= list.Length then
             acc
         else
-            aux (i + n) (acc @ [ xs.[i .. i + n - 1] ])
+            aux (i + size) (acc @ [ list.[i .. i + size - 1] ])
 
     aux 0 []
+
+let blockWise sep list =
+    seq {
+        let mutable acc = []
+
+        for item in list do
+            if item = sep then
+                yield acc
+                acc <- []
+            else
+                acc <- acc @ [item]
+
+        yield acc
+    }
