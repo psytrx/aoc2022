@@ -35,45 +35,40 @@ let parseInput lines =
         (stacks', moves')
     | _ -> failwith "invalid input format"
 
-let solve1 filename =
-    let mutable (stacks, moves) =
+let solve applyMove filename =
+    let (stacks, moves) =
         System.IO.File.ReadAllLines(filename)
         |> parseInput
 
-    let stacks' = stacks |> List.toArray
+    let mutable stacks' = stacks |> List.toArray
 
     for move in moves do
+        stacks' <- applyMove stacks' move
+
+    stacks' |> Array.map List.head |> System.String
+
+let solve1 filename =
+    let applyMove (stacks: list<char> array) move =
         for _ in [ 1 .. move.N ] do
-            stacks'.[move.To - 1] <-
-                List.head (stacks'.[move.From - 1])
-                :: stacks'.[move.To - 1]
+            stacks.[move.To - 1] <-
+                List.head (stacks.[move.From - 1])
+                :: stacks.[move.To - 1]
 
-            stacks'.[move.From - 1] <- List.tail stacks'.[move.From - 1]
+            stacks.[move.From - 1] <- List.tail stacks.[move.From - 1]
 
-    stacks'
-    |> Array.map List.head
-    |> System.String
-    |> printfn "%O"
+        stacks
 
-    -1
+    solve applyMove filename
+
 
 let solve2 filename =
-    let mutable (stacks, moves) =
-        System.IO.File.ReadAllLines(filename)
-        |> parseInput
+    let applyMove (stacks: list<char> array) move =
+        stacks.[move.To - 1] <-
+            stacks.[move.From - 1][.. move.N - 1]
+            @ stacks.[move.To - 1]
 
-    let stacks' = stacks |> List.toArray
+        stacks.[move.From - 1] <- stacks.[move.From - 1] |> List.skip move.N
 
-    for move in moves do
-        stacks'.[move.To - 1] <-
-            stacks'.[move.From - 1][.. move.N - 1]
-            @ stacks'.[move.To - 1]
+        stacks
 
-        stacks'.[move.From - 1] <- stacks'.[move.From - 1] |> List.skip move.N
-
-    stacks'
-    |> Array.map List.head
-    |> System.String
-    |> printfn "%O"
-
-    -1
+    solve applyMove filename
