@@ -58,11 +58,7 @@ let roundPoints shape result =
 let sumPointsWithStrat strat (data: string []) =
     data
     |> Array.map (fun line ->
-        let (opp, me) =
-            match line.Split(" ") with
-            | [| opp; me |] -> (opp, me)
-            | _ -> failwith "invalid input format"
-
+        let (opp, me) = Sscanf.sscanf "%s %s" line
         let (shapeMe, result) = strat opp me
         roundPoints shapeMe result)
     |> Array.sum
