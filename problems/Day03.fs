@@ -1,7 +1,7 @@
 module Day03
 
 let priority (c: char) =
-    let ord = System.Convert.ToInt32(c)
+    let ord = int c
 
     if c >= 'a' && c <= 'z' then
         ord - 96
