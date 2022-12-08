@@ -1,6 +1,6 @@
 ﻿let sw = new System.Diagnostics.Stopwatch()
 
-let filename = "./input/day08-test.txt"
+let filename = "./input/day08.txt"
 
 sw.Restart()
 let s1 = Day08.solve1 filename

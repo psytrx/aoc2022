@@ -22,3 +22,7 @@ let blockWise sep list =
 
         yield acc
     }
+
+let dump fmt a =
+    printfn fmt a
+    a
