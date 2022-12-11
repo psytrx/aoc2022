@@ -16,39 +16,46 @@ let parseInstruction line =
     | Prefix "addx " rest -> AddX(System.Convert.ToInt32 rest)
     | _ -> failwithf "invalid instruction '%s'" line
 
-let numCycles instr =
-    match instr with
-    | Noop -> 1
-    | AddX _ -> 2
+let flattenInstructions instructions =
+    let rec aux acc instructions =
+        match instructions with
+        | [] -> acc
+        | Noop :: rest -> aux (acc @ [ Noop ]) rest
+        | AddX v :: rest -> aux (acc @ [ Noop; AddX v ]) rest
+
+    aux [] instructions
 
 let execute instructions =
-    let folder (cycle, signals, x) instr =
-        let nextCycle = cycle + numCycles instr
-
-        let doSignal =
-            [ cycle + 1 .. nextCycle ]
-            |> List.tryFind (fun c -> (20 + c) % 40 = 0)
-
+    let folder (cycle, signals, x, crt) instr =
         let nextSignals =
-            match doSignal with
-            | Some cycle -> signals @ [ cycle * x ]
-            | _ -> signals
+            if (20 + cycle) % 40 = 0 then
+                signals @ [ cycle * x ]
+            else
+                signals
+
+        let idx = (cycle - 1) % 40
+        let onSprite = idx >= x - 1 && idx <= x + 1
+        let pixel = if onSprite then "#" else "."
+
+        let nextCrt = crt + pixel + if cycle % 40 = 0 then "\n" else ""
 
         match instr with
-        | Noop -> (cycle + numCycles instr, nextSignals, x)
-        | AddX v -> (cycle + numCycles instr, nextSignals, x + v)
+        | Noop -> (cycle + 1, nextSignals, x, nextCrt)
+        | AddX v -> (cycle + 1, nextSignals, x + v, nextCrt)
 
-    instructions |> Array.fold folder (0, [], 1)
+    instructions |> List.fold folder (1, [], 1, "\n")
+
+let runProgram =
+    System.IO.File.ReadAllLines
+    >> Array.map parseInstruction
+    >> Array.toList
+    >> flattenInstructions
+    >> execute
 
 let solve1 filename =
-    let state =
-        filename
-        |> System.IO.File.ReadAllLines
-        |> Array.map parseInstruction
-        |> execute
-        |> Util.dump "%A"
+    match runProgram filename with
+    | (_, signals, _, _) -> signals |> List.sum
 
-    match state with
-    | (_, signals, _) -> signals |> List.sum
-
-let solve2 = System.IO.File.ReadAllLines
+let solve2 filename =
+    match runProgram filename with
+    | (_, _, _, crt) -> crt
