@@ -33,16 +33,20 @@ let flattenMotions motions =
 
     aux [] motions
 
+let advanceKnot direction knot =
+    match knot with
+    | (x, y) ->
+        match direction with
+        | Up -> (x, y - 1)
+        | Down -> (x, y + 1)
+        | Left -> (x - 1, y)
+        | Right -> (x + 1, y)
+
 let traceRope directions =
     let folder state curr =
         match state with
-        | (trace, ((hx, hy), (tx, ty))) ->
-            let nextHead =
-                match curr with
-                | Up -> (hx, hy - 1)
-                | Down -> (hx, hy + 1)
-                | Left -> (hx - 1, hy)
-                | Right -> (hx + 1, hy)
+        | (trace, (head, (tx, ty))) ->
+            let nextHead = advanceKnot curr head
 
             let dx = (fst nextHead) - tx
             let dy = (snd nextHead) - ty
