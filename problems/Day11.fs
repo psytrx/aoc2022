@@ -14,12 +14,11 @@ let loadNotes filename =
         let xs = Seq.toArray notes
 
         let items =
-            match xs.[1] with
-            | Util.Prefix "  Starting items: " rest ->
-                rest.Split(", ")
-                |> Array.map bigint.Parse
-                |> Array.toList
-            | _ -> failwithf "invalid starting items: %s" xs.[1]
+            let items = Sscanf.sscanf "  Starting items: %s" xs.[1]
+
+            items.Split(", ")
+            |> Array.map bigint.Parse
+            |> Array.toList
 
         let op =
             match Sscanf.sscanf "  Operation: new = old %c %s" xs.[2] with
@@ -33,8 +32,8 @@ let loadNotes filename =
                 | _ -> failwithf "invalid operation: '%s'" xs.[2]
 
         let divisor =
-            match Sscanf.sscanf "  Test: divisible by %s" xs.[3] with
-            | s -> bigint.Parse s
+            let s = Sscanf.sscanf "  Test: divisible by %s" xs.[3]
+            bigint.Parse s
 
         let targets =
             let t = Sscanf.sscanf "    If true: throw to monkey %d" xs.[4]
