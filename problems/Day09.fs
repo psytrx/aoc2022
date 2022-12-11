@@ -48,32 +48,45 @@ let relaxKnot (hx, hy) (tx, ty) =
     match (abs dx, abs dy) with
     | (2, 0) -> (tx + sign dx, ty)
     | (0, 2) -> (tx, ty + sign dy)
-    | (2, 1) -> (tx + sign dx, ty + sign dy)
-    | (1, 2) -> (tx + sign dx, ty + sign dy)
+    | (2, _) -> (tx + sign dx, ty + sign dy)
+    | (_, 2) -> (tx + sign dx, ty + sign dy)
     | _ -> (tx, ty)
 
-let traceRope directions =
+let moveRope direction rope =
+    match rope with
+    | [] -> rope
+    | head :: rest -> (moveKnot direction head) :: rest
+
+let relaxRope rope =
+    let rec aux acc rope =
+        match rope with
+        | [] -> acc
+        | [ last ] -> acc @ [ last ]
+        | head :: next :: rest ->
+            let relaxedNext = relaxKnot head next
+            aux (acc @ [ head ]) (relaxedNext :: rest)
+
+    aux [] rope
+
+let traceRope length directions =
     let folder state dir =
         match state with
-        | (trace, (head, tail)) ->
-            let nextHead = moveKnot dir head
-            let nextTail = relaxKnot nextHead tail
-            let nextTrace = Set.add nextTail trace
-            (nextTrace, (nextHead, nextTail))
+        | (trace, rope) ->
+            let nextRope = moveRope dir rope |> relaxRope
+            let last = List.last nextRope
+            let nextTrace = Set.add last trace
+            (nextTrace, nextRope)
 
     directions
-    |> List.fold folder (Set.empty, ((0, 0), (0, 0)))
+    |> List.fold folder (set [ (0, 0) ], List.replicate length (0, 0))
     |> fst
 
-
-let solve1 =
+let solve n =
     loadInput
     >> flattenMotions
-    >> traceRope
+    >> traceRope n
     >> Set.count
 
-let solve2 =
-    loadInput
-    >> flattenMotions
-    >> traceRope
-    >> Set.count
+let solve1 = solve 2
+
+let solve2 = solve 10
