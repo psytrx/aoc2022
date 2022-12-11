@@ -3,7 +3,7 @@ module Day11
 type MonkeyNote =
     { mutable Items: bigint list
       Op: bigint -> bigint
-      Test: bigint -> bool
+      Divisor: bigint
       Targets: int * int
       mutable Inspected: bigint }
 
@@ -32,9 +32,9 @@ let loadNotes filename =
                 | '*' -> fun w -> w * d
                 | _ -> failwithf "invalid operation: '%s'" xs.[2]
 
-        let test =
+        let divisor =
             match Sscanf.sscanf "  Test: divisible by %s" xs.[3] with
-            | s -> (fun w -> w % (bigint.Parse s) = bigint.Zero)
+            | s -> bigint.Parse s
 
         let targets =
             let t = Sscanf.sscanf "    If true: throw to monkey %d" xs.[4]
@@ -43,7 +43,7 @@ let loadNotes filename =
 
         { Items = items
           Op = op
-          Test = test
+          Divisor = divisor
           Targets = targets
           Inspected = bigint 0 })
     |> Seq.toArray
@@ -54,7 +54,7 @@ let round unworry (monkeys: MonkeyNote array) =
             let worry = unworry (monkey.Op item)
 
             let target =
-                if monkey.Test worry then
+                if worry % monkey.Divisor = bigint.Zero then
                     fst monkey.Targets
                 else
                     snd monkey.Targets
@@ -73,16 +73,24 @@ let multipleRounds n unworry monkeys =
 
     monkeys
 
-let solve rounds unworry =
-    loadNotes
-    >> multipleRounds rounds unworry
-    >> Array.map (fun m -> m.Inspected)
+let monkeyBusiness =
+    Array.map (fun m -> m.Inspected)
     >> Array.sortDescending
     >> Array.take 2
     >> Array.reduce (*)
 
-let solve1 = solve 20 (fun w -> w / bigint 3)
+let solve1 =
+    loadNotes
+    >> multipleRounds 20 (fun w -> w / bigint 3)
+    >> monkeyBusiness
 
 let solve2 filename =
-    let modulo = bigint ([ 3; 13; 19; 17; 5; 7; 11; 2 ] |> List.reduce (*))
-    filename |> solve 10000 (fun w -> w % modulo)
+    let notes = loadNotes filename
+
+    let modulo =
+        notes
+        |> Array.fold (fun acc m -> acc * m.Divisor) bigint.One
+
+    notes
+    |> multipleRounds 10000 (fun w -> w % modulo)
+    |> monkeyBusiness
