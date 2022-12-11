@@ -11,21 +11,21 @@ let priority (c: char) =
         failwith "invalid character"
 
 
-let solve1 filename =
-    System.IO.File.ReadAllLines(filename)
-    |> Array.map (fun line ->
+let solve1 =
+    System.IO.File.ReadAllLines
+    >> Array.map (fun line ->
         let m = line.Length / 2
         let l, r = line[.. m - 1], line[m..]
 
         Set.intersect (Set.ofSeq l) (Set.ofSeq r)
         |> Seq.head
         |> priority)
-    |> Array.sum
+    >> Array.sum
 
-let solve2 filename =
-    System.IO.File.ReadAllLines(filename)
-    |> Util.bundleWise 3
-    |> List.sumBy (
+let solve2 =
+    System.IO.File.ReadAllLines
+    >> Util.bundleWise 3
+    >> List.sumBy (
         Array.map Set.ofSeq
         >> Set.intersectMany
         >> Seq.head
