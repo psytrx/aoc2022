@@ -42,24 +42,24 @@ let advanceKnot direction knot =
         | Left -> (x - 1, y)
         | Right -> (x + 1, y)
 
+let followKnot (hx, hy) (tx, ty) =
+    let (dx, dy) = (hx - tx, hy - ty)
+
+    match (abs dx, abs dy) with
+    | (2, 0) -> (tx + sign dx, ty)
+    | (0, 2) -> (tx, ty + sign dy)
+    | (2, 1) -> (tx + sign dx, ty + sign dy)
+    | (1, 2) -> (tx + sign dx, ty + sign dy)
+    | _ -> (tx, ty)
+
 let traceRope directions =
     let folder state curr =
         match state with
-        | (trace, (head, (tx, ty))) ->
+        | (trace, (head, tail)) ->
             let nextHead = advanceKnot curr head
-
-            let dx = (fst nextHead) - tx
-            let dy = (snd nextHead) - ty
-
-            let nextTail =
-                match (abs dx, abs dy) with
-                | (2, 0) -> (tx + sign dx, ty)
-                | (0, 2) -> (tx, ty + sign dy)
-                | (2, 1) -> (tx + sign dx, ty + sign dy)
-                | (1, 2) -> (tx + sign dx, ty + sign dy)
-                | _ -> (tx, ty)
-
-            (Set.add nextTail trace, (nextHead, nextTail))
+            let nextTail = followKnot nextHead tail
+            let nextTrace = Set.add nextTail trace
+            (nextTrace, (nextHead, nextTail))
 
     directions
     |> List.fold folder (Set.empty, ((0, 0), (0, 0)))
