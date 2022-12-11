@@ -7,17 +7,14 @@ type Direction =
     | Right
 
 let parseLine (line: string) =
-    match line.Split(" ") with
-    | [| dir; dist |] ->
-        let d = System.Convert.ToInt32(dist)
+    let dir, d = Sscanf.sscanf "%s %d" line
 
-        match dir with
-        | "U" -> (Up, d)
-        | "D" -> (Down, d)
-        | "L" -> (Left, d)
-        | "R" -> (Right, d)
-        | _ -> failwithf "Invalid direction '%s'" dir
-    | _ -> failwithf "Invalid line '%s'" line
+    match dir with
+    | "U" -> (Up, d)
+    | "D" -> (Down, d)
+    | "L" -> (Left, d)
+    | "R" -> (Right, d)
+    | _ -> failwithf "Invalid direction '%s'" dir
 
 let flattenMotions motions =
     let rec aux acc motions =
