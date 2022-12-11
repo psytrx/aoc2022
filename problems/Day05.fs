@@ -11,11 +11,10 @@ let parseStackLine (s: string) =
 
     aux (Seq.toList s) []
 
-let parseStacks lines =
-    lines
-    |> List.map parseStackLine
-    |> List.transpose
-    |> List.map (List.choose id)
+let parseStacks =
+    List.map parseStackLine
+    >> List.transpose
+    >> List.map (List.choose id)
 
 let parseInput lines =
     let blocks = lines |> Util.blockWise "" |> List.ofSeq
