@@ -26,3 +26,9 @@ let blockWise sep list =
 let dump fmt a =
     printfn fmt a
     a
+
+let (|Prefix|_|) (prefix: string) (s: string) =
+    if s.StartsWith(prefix) then
+        Some(s.Substring(prefix.Length))
+    else
+        None

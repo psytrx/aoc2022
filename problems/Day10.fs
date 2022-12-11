@@ -4,16 +4,11 @@ type Instruction =
     | Noop
     | AddX of int
 
-let (|Prefix|_|) (prefix: string) (s: string) =
-    if s.StartsWith(prefix) then
-        Some(s.Substring(prefix.Length))
-    else
-        None
 
 let parseInstruction line =
     match line with
     | "noop" -> Noop
-    | Prefix "addx " rest -> AddX(System.Convert.ToInt32 rest)
+    | Util.Prefix "addx " rest -> AddX(System.Convert.ToInt32 rest)
     | _ -> failwithf "invalid instruction '%s'" line
 
 let flattenInstructions instructions =
