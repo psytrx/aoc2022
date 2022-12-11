@@ -40,7 +40,6 @@ let applyMoves applyMove stacks moves =
 
     aux stacks moves
 
-
 let solve applyMove filename =
     let mutable (stacks, moves) =
         System.IO.File.ReadAllLines(filename)
@@ -62,7 +61,6 @@ let solve1 filename =
             stacks
 
     solve applyMove filename
-
 
 let solve2 filename =
     let applyMove (stacks: list<char> array) move =

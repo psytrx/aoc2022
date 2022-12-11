@@ -3,7 +3,7 @@ module Day01
 let parseInput =
     System.IO.File.ReadAllLines
     >> Util.blockWise " "
-    >> Seq.map (fun items -> items |> List.sumBy System.Convert.ToInt32)
+    >> Seq.map (List.sumBy System.Convert.ToInt32)
 
 let solve1 = parseInput >> Seq.max
 

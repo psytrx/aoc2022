@@ -22,8 +22,8 @@ type RoundResult =
 
 let roundResult me opp =
     match (me, opp) with
-    | (Rock, Scissors) -> Win
-    | (Scissors, Paper) -> Win
+    | (Rock, Scissors)
+    | (Scissors, Paper)
     | (Paper, Rock) -> Win
     | _ when me = opp -> Draw
     | _ -> Loss

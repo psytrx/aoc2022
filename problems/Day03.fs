@@ -10,7 +10,6 @@ let priority (c: char) =
     else
         failwith "invalid character"
 
-
 let solve1 =
     System.IO.File.ReadAllLines
     >> Array.map (fun line ->

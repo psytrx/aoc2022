@@ -43,7 +43,6 @@ let private separators =
     |> Seq.map (fun c -> "%" + sprintf "%c" c)
     |> Seq.toArray
 
-
 // Creates a list of formatter characters from a format string,
 // for example "(%s,%d)" -> ['s', 'd']
 let rec private getFormatters xs =
@@ -56,7 +55,6 @@ let rec private getFormatters xs =
             failwithf "Unknown formatter %%%c" x
     | x :: xr -> getFormatters xr
     | [] -> []
-
 
 let sscanf (pf: PrintfFormat<_, _, _, _, 't>) s : 't =
     let formatStr = pf.Value.Replace("%%", "%")

@@ -4,7 +4,6 @@ type Instruction =
     | Noop
     | AddX of int
 
-
 let parseInstruction line =
     match line with
     | "noop" -> Noop

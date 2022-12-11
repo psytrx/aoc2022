@@ -118,7 +118,6 @@ let solve1 filename =
         |> Array.toList
         |> parseTree
 
-
     flattenDirectories [] tree
     |> List.filter (fun dir -> dir.Size <= 100000)
     |> List.sumBy (fun entry -> entry.Size)
