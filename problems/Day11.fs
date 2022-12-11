@@ -1,11 +1,11 @@
 module Day11
 
 type MonkeyNote =
-    { mutable Items: bigint list
-      Op: bigint -> bigint
-      Divisor: bigint
+    { mutable Items: uint64 list
+      Op: uint64 -> uint64
+      Divisor: uint64
       Targets: int * int
-      mutable Inspected: bigint }
+      mutable Inspected: uint64 }
 
 let loadNotes filename =
     System.IO.File.ReadAllLines filename
@@ -17,14 +17,14 @@ let loadNotes filename =
             let items = Sscanf.sscanf "  Starting items: %s" xs.[1]
 
             items.Split(", ")
-            |> Array.map bigint.Parse
+            |> Array.map System.Convert.ToUInt64
             |> Array.toList
 
         let op =
             match Sscanf.sscanf "  Operation: new = old %c %s" xs.[2] with
             | ('*', "old") -> fun w -> w * w
             | (op, s) ->
-                let d = bigint.Parse s
+                let d = uint64 s
 
                 match op with
                 | '+' -> fun w -> w + d
@@ -33,7 +33,7 @@ let loadNotes filename =
 
         let divisor =
             let s = Sscanf.sscanf "  Test: divisible by %s" xs.[3]
-            bigint.Parse s
+            uint64 s
 
         let targets =
             let t = Sscanf.sscanf "    If true: throw to monkey %d" xs.[4]
@@ -44,7 +44,7 @@ let loadNotes filename =
           Op = op
           Divisor = divisor
           Targets = targets
-          Inspected = bigint 0 })
+          Inspected = uint64 0 })
     |> Seq.toArray
 
 let round unworry (monkeys: MonkeyNote array) =
@@ -53,7 +53,7 @@ let round unworry (monkeys: MonkeyNote array) =
             let worry = unworry (monkey.Op item)
 
             let target =
-                if worry % monkey.Divisor = bigint.Zero then
+                if worry % monkey.Divisor = 0UL then
                     fst monkey.Targets
                 else
                     snd monkey.Targets
@@ -62,7 +62,7 @@ let round unworry (monkeys: MonkeyNote array) =
 
         monkey.Inspected <-
             monkey.Inspected
-            + bigint (List.length monkey.Items)
+            + uint64 (List.length monkey.Items)
 
         monkey.Items <- []
 
@@ -80,7 +80,7 @@ let monkeyBusiness =
 
 let solve1 =
     loadNotes
-    >> multipleRounds 20 (fun w -> w / bigint 3)
+    >> multipleRounds 20 (fun w -> w / uint64 3)
     >> monkeyBusiness
 
 let solve2 filename =
@@ -88,7 +88,7 @@ let solve2 filename =
 
     let modulo =
         notes
-        |> Array.fold (fun acc m -> acc * m.Divisor) bigint.One
+        |> Array.fold (fun acc m -> acc * m.Divisor) 1UL
 
     notes
     |> multipleRounds 10000 (fun w -> w % modulo)
