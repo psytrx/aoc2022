@@ -16,7 +16,7 @@ let private parsers =
            'd', int >> box
            'i', int >> box
            's', box
-           'u', uint32 >> int >> box
+           'u', uint32 >> box
            'x',
            check (String.forall System.Char.IsLower)
            >> ((+) "0x")
