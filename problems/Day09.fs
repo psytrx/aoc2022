@@ -33,7 +33,7 @@ let flattenMotions motions =
 
     aux [] motions
 
-let advanceKnot direction knot =
+let moveKnot direction knot =
     match knot with
     | (x, y) ->
         match direction with
@@ -42,7 +42,7 @@ let advanceKnot direction knot =
         | Left -> (x - 1, y)
         | Right -> (x + 1, y)
 
-let followKnot (hx, hy) (tx, ty) =
+let relaxKnot (hx, hy) (tx, ty) =
     let (dx, dy) = (hx - tx, hy - ty)
 
     match (abs dx, abs dy) with
@@ -53,11 +53,11 @@ let followKnot (hx, hy) (tx, ty) =
     | _ -> (tx, ty)
 
 let traceRope directions =
-    let folder state curr =
+    let folder state dir =
         match state with
         | (trace, (head, tail)) ->
-            let nextHead = advanceKnot curr head
-            let nextTail = followKnot nextHead tail
+            let nextHead = moveKnot dir head
+            let nextTail = relaxKnot nextHead tail
             let nextTrace = Set.add nextTail trace
             (nextTrace, (nextHead, nextTail))
 
@@ -72,4 +72,8 @@ let solve1 =
     >> traceRope
     >> Set.count
 
-let solve2 filename = -1
+let solve2 =
+    loadInput
+    >> flattenMotions
+    >> traceRope
+    >> Set.count
