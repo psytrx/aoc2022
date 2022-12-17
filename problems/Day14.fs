@@ -18,7 +18,7 @@ let loadGrid filename =
         |> Array.max
 
     let mutable grid =
-        Array.init 1000 (fun x -> Array.init (maxY + 2) (fun y -> if y = maxY + 2 then Rock else Air))
+        Array.init 1000 (fun x -> Array.init (maxY + 3) (fun y -> if y = maxY + 2 then Rock else Air))
 
     lines
     |> Array.iter (fun line ->
@@ -49,11 +49,16 @@ let rec advance shouldStop rested start (x, y) (grid: Cell array array) =
         advance shouldStop rested start (x + 1, y + 1) grid
     else
         grid.[x].[y] <- Sand
-        printfn "rested: %d" (rested + 1)
-        advance shouldStop (rested + 1) start start grid
+
+        if (x, y) = start then
+            rested + 1
+        else
+            advance shouldStop (rested + 1) start start grid
 
 let solve1 filename =
     let grid, maxY = loadGrid filename
-    advance (fun (_, y) -> y >= maxY) 0 (500, 0) (500, 0) grid
+    advance (fun (_, y) -> y > maxY) 0 (500, 0) (500, 0) grid
 
-let solve2 filename = -1
+let solve2 filename =
+    let grid, _ = loadGrid filename
+    advance (fun _ -> false) 0 (500, 0) (500, 0) grid
