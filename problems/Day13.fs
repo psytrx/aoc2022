@@ -18,18 +18,16 @@ let findClosing s =
     aux 0 0 s
 
 let parsePacket (s: string) =
-    let rec aux (s: string) =
-        printfn "%s" s
-
-        if s = "" || s = "[]" then
+    let rec parseItems (s: string) =
+        if s = "" then
             []
         else if s.StartsWith(",") then
-            aux (s.Substring(1))
+            parseItems (s.Substring(1))
         else if s.StartsWith("[") then
             let closing = findClosing s
             let inner = s.Substring(1, closing - 1)
             let rest = s.Substring(closing + 1)
-            List(aux inner) :: aux rest
+            List(parseItems inner) :: parseItems rest
         else
             let comma = s.IndexOf(",")
 
@@ -38,10 +36,33 @@ let parsePacket (s: string) =
             else
                 let next = s.Substring(0, comma)
                 let rest = s.Substring(comma + 1)
-                Int(int next) :: aux rest
+                Int(int next) :: parseItems (rest)
 
-    List.head (aux s)
+    List(parseItems (s.Substring(1, s.Length - 2)))
 
+type Indeterminate =
+    | Yes
+    | No
+    | Unknown
+
+let isInOrder pair =
+    let rec aux pair =
+        match pair with
+        | (Int left, Int right) when left < right -> Yes
+        | (Int left, Int right) when left > right -> No
+        | (Int left, Int right) when left = right -> Unknown
+        | (List [], List []) -> Unknown
+        | (List [], List (_ :: _)) -> Yes
+        | (List (_ :: _), List []) -> No
+        | (List (lHead :: lRest), List (rHead :: rRest)) ->
+            match aux (lHead, rHead) with
+            | Unknown -> aux (List lRest, List rRest)
+            | yesOrNo -> yesOrNo
+        | (Int left, List right) -> aux (List [ Int left ], List right)
+        | (List left, Int right) -> aux (List left, List [ Int right ])
+        | _ -> failwithf "invalid pair: %A" pair
+
+    aux pair
 
 let solve1 filename =
     System.IO.File.ReadAllLines(filename)
@@ -51,5 +72,8 @@ let solve1 filename =
         | [ left; right ] -> parsePacket left, parsePacket right
         | _ -> failwith "invalid packet pair")
     |> Util.dump "%A"
+    |> Seq.mapi (fun i pair -> (i + 1, pair))
+    |> Seq.filter ((snd >> isInOrder) >> (=) Yes)
+    |> Seq.sumBy fst
 
 let solve2 filename = -1
