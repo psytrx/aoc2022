@@ -5,7 +5,7 @@ type Cell =
     | Rock
     | Sand
 
-let solve1 filename =
+let loadGrid filename =
     let lines =
         System.IO.File.ReadAllLines(filename)
         |> Array.map (fun line ->
@@ -17,7 +17,8 @@ let solve1 filename =
         |> Array.map (fun line -> line |> Array.map snd |> Array.max)
         |> Array.max
 
-    let mutable grid = Array.init 1000 (fun x -> Array.init (maxY + 2) (fun y -> Air))
+    let mutable grid =
+        Array.init 1000 (fun x -> Array.init (maxY + 2) (fun y -> if y = maxY + 2 then Rock else Air))
 
     lines
     |> Array.iter (fun line ->
@@ -33,26 +34,26 @@ let solve1 filename =
                 let x = fst a
 
                 for y in [ snd a .. sign (snd b - snd a) .. snd b ] do
-                    grid.[x].[y] <- Rock
+                    grid.[x].[y] <- Rock))
 
-        ))
+    grid, maxY
 
+let rec advance shouldStop rested start (x, y) (grid: Cell array array) =
+    if shouldStop (x, y) then
+        rested
+    else if grid.[x].[y + 1] = Air then
+        advance shouldStop rested start (x, y + 1) grid
+    else if grid.[x - 1].[y + 1] = Air then
+        advance shouldStop rested start (x - 1, y + 1) grid
+    else if grid.[x + 1].[y + 1] = Air then
+        advance shouldStop rested start (x + 1, y + 1) grid
+    else
+        grid.[x].[y] <- Sand
+        printfn "rested: %d" (rested + 1)
+        advance shouldStop (rested + 1) start start grid
 
-    let s = (500, 0)
-
-    let rec advance rested (x, y) (grid: Cell array array) =
-        if y > maxY then
-            rested
-        else if grid.[x].[y + 1] = Air then
-            advance rested (x, y + 1) grid
-        else if grid.[x - 1].[y + 1] = Air then
-            advance rested (x - 1, y + 1) grid
-        else if grid.[x + 1].[y + 1] = Air then
-            advance rested (x + 1, y + 1) grid
-        else
-            grid.[x].[y] <- Sand
-            advance (rested + 1) s grid
-
-    advance 0 s grid
+let solve1 filename =
+    let grid, maxY = loadGrid filename
+    advance (fun (_, y) -> y >= maxY) 0 (500, 0) (500, 0) grid
 
 let solve2 filename = -1
