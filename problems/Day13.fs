@@ -71,9 +71,23 @@ let solve1 filename =
         match pair with
         | [ left; right ] -> parsePacket left, parsePacket right
         | _ -> failwith "invalid packet pair")
-    |> Util.dump "%A"
     |> Seq.mapi (fun i pair -> (i + 1, pair))
     |> Seq.filter ((snd >> isInOrder) >> (=) Yes)
     |> Seq.sumBy fst
 
-let solve2 filename = -1
+let solve2 filename =
+    let dividers = [| "[[2]]"; "[[6]]" |] |> Array.map parsePacket
+
+    System.IO.File.ReadAllLines(filename)
+    |> Array.filter (fun s -> s.Length > 0)
+    |> Array.map parsePacket
+    |> Array.append dividers
+    |> Array.sortWith (fun a b ->
+        match isInOrder (a, b) with
+        | Yes -> -1
+        | No -> 1
+        | Unknown -> 0)
+    |> Array.mapi (fun i pair -> (i + 1, pair))
+    |> Array.filter (fun (_, pair) -> Array.contains pair dividers)
+    |> Array.map fst
+    |> Array.reduce (*)
