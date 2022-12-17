@@ -6,7 +6,6 @@ let loadNodes filename =
         s.ToCharArray()
         |> Array.mapi (fun x c -> ((x, y), c)))
     |> Array.collect id
-    |> Util.dump "%A"
 
 let findPath start nodes =
     let E = nodes |> Array.find (snd >> (=) 'E')
@@ -28,10 +27,10 @@ let findPath start nodes =
 
     let rec aux q visited =
         match q with
-        | [] -> failwith "no path found, queue empty"
+        | [] -> None
         | (curr, t) :: rest ->
             if curr = E then
-                t
+                Some t
             else if Set.contains curr visited then
                 aux rest visited
             else
@@ -40,12 +39,25 @@ let findPath start nodes =
                 let nextQ = rest @ neighbors
                 aux nextQ nextVisited
 
-    aux [ (start, []) ] Set.empty |> List.length
+    aux [ (start, []) ] Set.empty
 
 
 let solve1 filename =
     let nodes = loadNodes filename
     let S = nodes |> Array.find (snd >> (=) 'S')
-    findPath S nodes
 
-let solve2 filename = -1
+    match findPath S nodes with
+    | None -> failwith "no path found"
+    | Some t -> List.length t
+
+let solve2 filename =
+    let nodes = loadNodes filename
+
+    let starts =
+        nodes
+        |> Array.filter (fun (_, c) -> c = 'a' || c = 'S')
+
+    starts
+    |> Array.choose (fun s -> findPath s nodes)
+    |> Array.map List.length
+    |> Array.min
