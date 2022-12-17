@@ -1,30 +1,30 @@
 module Day12
 
-let solve1 filename =
-    let nodes =
-        System.IO.File.ReadAllLines(filename)
-        |> Array.mapi (fun y s ->
-            s.ToCharArray()
-            |> Array.mapi (fun x c -> ((x, y), c)))
-        |> Array.collect id
-        |> Util.dump "%A"
+let loadNodes filename =
+    System.IO.File.ReadAllLines(filename)
+    |> Array.mapi (fun y s ->
+        s.ToCharArray()
+        |> Array.mapi (fun x c -> ((x, y), c)))
+    |> Array.collect id
+    |> Util.dump "%A"
 
-    let S = nodes |> Array.find (snd >> (=) 'S')
+let findPath start nodes =
     let E = nodes |> Array.find (snd >> (=) 'E')
 
-    let elevation c =
-        match c with
-        | 'S' -> int 'a'
-        | 'E' -> int 'z'
-        | c -> int c
+    let elevation node =
+        if node = start then
+            int 'a'
+        else
+            match node with
+            | (_, 'E') -> int 'z'
+            | (_, c) -> int c
 
     let edges ((x, y), c) =
         [ (-1, 0); (0, -1); (1, 0); (0, 1) ]
         |> List.choose (fun (ox, oy) ->
             nodes
             |> Array.tryFind (fun ((nx, ny), _) -> x + ox = nx && y + oy = ny))
-        |> List.filter (fun ((_, _), cn) -> elevation cn <= elevation c + 1)
-
+        |> List.filter (fun en -> elevation en <= elevation ((x, y), c) + 1)
 
     let rec aux q visited =
         match q with
@@ -40,8 +40,12 @@ let solve1 filename =
                 let nextQ = rest @ neighbors
                 aux nextQ nextVisited
 
-    aux [ (S, []) ] Set.empty
-    |> Util.dump "%A"
-    |> List.length
+    aux [ (start, []) ] Set.empty |> List.length
+
+
+let solve1 filename =
+    let nodes = loadNodes filename
+    let S = nodes |> Array.find (snd >> (=) 'S')
+    findPath S nodes
 
 let solve2 filename = -1
