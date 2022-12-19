@@ -1,38 +1,55 @@
 module Day15
 
-let loadSensorData filename =
+let loadData filename =
     System.IO.File.ReadAllLines(filename)
     |> Array.map (fun line ->
         let sx, sy, bx, by =
             Sscanf.sscanf "Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d" line
 
-        let r = abs (bx - sx) + abs (by - sy)
-        (sx, sy), (by, by), r)
+        (sx, sy), (bx, by))
 
-let sensorLineCoverage line ((x, y), _, r) =
-    let dy = abs (line - y)
+let sensorLineCoverage line ((sx, sy), (bx, by)) =
+    let md = abs (bx - sx) + abs (by - sy)
+    let dy = abs (line - sy)
 
-    if dy > r then
-        []
+    if dy > md then
+        None
     else
-        let dx = abs (r - dy)
-        [ x - dx .. x + dx ]
+        let dx = md - dy
+        Some(sx - dx, sx + dx)
 
-let combinedLineCoverage line sensorData =
-    let beaconsInLine =
-        sensorData
-        |> Array.filter (fun (_, (_, by), _) -> by = line)
-        |> Array.map (fun (_, (bx, _), _) -> bx)
+let extent ranges =
+    let lo = Array.map fst ranges |> Array.min
+    let hi = Array.map snd ranges |> Array.max
+    lo, hi
 
-    sensorData
-    |> Array.map (sensorLineCoverage line)
-    |> Array.collect List.toArray
-    |> Array.distinct
-    |> Array.except beaconsInLine
-    |> Array.length
+let countCovered ranges =
+    let (elo, ehi) = extent ranges
+    let mutable c = 0
+
+    for x in [ elo..ehi ] do
+        let covered = Array.exists (fun (lo, hi) -> x >= lo && x <= hi) ranges
+        if covered then c <- c + 1
+
+    c
 
 let solve1 filename =
-    loadSensorData filename
-    |> combinedLineCoverage 2000000
+    let sensorData = loadData filename
+
+    let line = 2_000_000
+
+    let beaconsInLine =
+        sensorData
+        |> Array.filter (snd >> snd >> (=) line)
+        |> Array.map snd
+        |> Array.distinct
+        |> Array.length
+
+    let covered =
+        sensorData
+        |> Array.choose (sensorLineCoverage line)
+        |> countCovered
+
+    covered - beaconsInLine
 
 let solve2 filename = -1
